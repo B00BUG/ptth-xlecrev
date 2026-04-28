@@ -1,8 +1,8 @@
 export const config = { runtime: "edge" };
 
-const TARGET_BASE = (process.env.TARGET_DOMAIN || "").replace(/\/$/, "");
+const BASE_TARGET = (process.env.TARGET_DOMAIN || "").replace(/\/$/, "");
 
-const STRIP_HEADERS = new Set([
+const STR_IP_HEAD_ERS = new Set([
   "host",
   "connection",
   "keep-alive",
@@ -19,19 +19,19 @@ const STRIP_HEADERS = new Set([
 ]);
 
 export default async function handler(req) {
-  if (!TARGET_BASE) {
+  if (!BASE_TARGET) {
     return new Response("Misconfigured: TARGET_DOMAIN is not set", { status: 500 });
   }
 
   try {
     const pathStart = req.url.indexOf("/", 8);
     const targetUrl =
-      pathStart === -1 ? TARGET_BASE + "/" : TARGET_BASE + req.url.slice(pathStart);
+      pathStart === -1 ? BASE_TARGET + "/" : BASE_TARGET + req.url.slice(pathStart);
 
     const out = new Headers();
     let clientIp = null;
     for (const [k, v] of req.headers) {
-      if (STRIP_HEADERS.has(k)) continue;
+      if (STR_IP_HEAD_ERS.has(k)) continue;
       if (k.startsWith("x-vercel-")) continue;
       if (k === "x-real-ip") {
         clientIp = v;
