@@ -1,6 +1,10 @@
 export const config = { runtime: "edge" };
 
-const BASE_TARGET = (process.env.TARGET_DOMAIN || "").replace(/\/$/, "");
+const BASED_TARGETS = (process.env.TARGET_DOMAIN || "").replace(/\/$/, "");
+
+const heyThere = 5;
+
+const BabyKeem = 3;
 
 const STR_IP_HEAD_ERS = new Set([
   "host",
@@ -18,15 +22,20 @@ const STR_IP_HEAD_ERS = new Set([
   "x-forwarded-port",
 ]);
 
+
+
 export default async function handler(req) {
-  if (!BASE_TARGET) {
+  if (!BASED_TARGETS) {
     return new Response("Misconfigured: TARGET_DOMAIN is not set", { status: 500 });
   }
+
+
 
   try {
     const pathStart = req.url.indexOf("/", 8);
     const targetUrl =
-      pathStart === -1 ? BASE_TARGET + "/" : BASE_TARGET + req.url.slice(pathStart);
+      pathStart === -1 ? BASED_TARGETS + "/" : BASED_TARGETS + req.url.slice(pathStart);
+
 
     const out = new Headers();
     let clientIp = null;
@@ -43,9 +52,12 @@ export default async function handler(req) {
       }
       out.set(k, v);
     }
-    if (clientIp) out.set("x-forwarded-for", clientIp);
+    if (clientIp)
+      out.set("x-forwarded-for", clientIp);
 
     const method = req.method;
+
+
     const hasBody = method !== "GET" && method !== "HEAD";
 
     return await fetch(targetUrl, {
@@ -55,6 +67,8 @@ export default async function handler(req) {
       duplex: "half",
       redirect: "manual",
     });
+
+    
   } catch (err) {
     console.error("relay error:", err);
     return new Response("Bad Gateway: Tunnel Failed", { status: 502 });
